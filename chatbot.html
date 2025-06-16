@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chat Asistente Mejorado PRO</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Layout completo -->
+    <div class="flex flex-col h-screen">
+
+        <!-- Encabezado -->
+        <div class="bg-gradient-to-r from-blue-600 to-emerald-600 text-white py-4 px-6 flex justify-between items-center shadow">
+            <div class="flex items-center space-x-3">
+                <!-- Botón regresar -->
+                <button id="backBtn" class="text-white text-2xl hover:text-yellow-300 transition">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <i class="fas fa-robot text-2xl"></i>
+                <h3 class="font-bold text-xl">Asistente de Viajes</h3>
+            </div>
+            <!-- Botón cerrar -->
+            <button id="closeChatBtn" class="text-white text-2xl hover:text-yellow-300 transition">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Cuerpo con 3 columnas -->
+        <div class="flex flex-grow overflow-hidden">
+
+            <!-- Columna izquierda (Tours recomendados) -->
+            <aside class="hidden md:block w-1/4 bg-white border-r overflow-y-auto p-4 space-y-4">
+                <h4 class="text-lg font-bold text-gray-700 mb-2">🌍 Tours Recomendados</h4>
+
+                <!-- Card 1 -->
+                <div class="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=600&q=60" alt="Tour Paris" class="h-32 w-full object-cover">
+                    <div class="p-3">
+                        <h5 class="font-bold text-blue-700 mb-1">Tour en París</h5>
+                        <p class="text-sm text-gray-600 mb-2">Disfruta de los mejores rincones de la ciudad del amor.</p>
+                        <p class="font-semibold text-gray-800 mb-2">4 días desde $899</p>
+                        <button class="bg-blue-600 text-white text-sm py-1 px-3 rounded hover:bg-blue-700">Ver más</button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Machu_Picchu%2C_Peru_%282018%29.jpg/1280px-Machu_Picchu%2C_Peru_%282018%29.jpg" alt="Machu Picchu" class="h-32 w-full object-cover">
+                    <div class="p-3">
+                        <h5 class="font-bold text-green-700 mb-1">Aventura en Machu Picchu</h5>
+                        <p class="text-sm text-gray-600 mb-2">Explora la maravilla del mundo con guías expertos.</p>
+                        <p class="font-semibold text-gray-800 mb-2">5 días desde $1200</p>
+                        <button class="bg-green-600 text-white text-sm py-1 px-3 rounded hover:bg-green-700">Ver más</button>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=60" alt="Playa Tailandia" class="h-32 w-full object-cover">
+                    <div class="p-3">
+                        <h5 class="font-bold text-yellow-700 mb-1">Playas de Tailandia</h5>
+                        <p class="text-sm text-gray-600 mb-2">Relájate en las mejores playas del sudeste asiático.</p>
+                        <p class="font-semibold text-gray-800 mb-2">7 días desde $1400</p>
+                        <button class="bg-yellow-600 text-white text-sm py-1 px-3 rounded hover:bg-yellow-700">Ver más</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Columna central (Chat) -->
+            <main id="chatModal" class="flex flex-col flex-grow bg-gradient-to-br from-gray-100 to-gray-200">
+                <!-- Contenedor de mensajes -->
+                <div class="flex-grow p-4 overflow-y-auto" id="chatMessages">
+                    <!-- Mensaje inicial -->
+                    <div class="message-received bg-white p-4 rounded-xl shadow max-w-lg mb-4">
+                        <p class="font-semibold text-blue-600">TravelAI:</p>
+                        <p>¡Hola! 👋 Soy tu asistente de viajes inteligente. Dime:</p>
+                        <ul class="list-disc pl-5 mt-2 text-gray-700">
+                            <li>¿Cuál es tu presupuesto? (ej: $500-$1000)</li>
+                            <li>¿Cuántos días tienes disponibles?</li>
+                            <li>¿Qué tipo de experiencia buscas? (relax, aventura, cultural, etc.)</li>
+                        </ul>
+                        <p class="mt-2 text-sm text-gray-500 italic">Ejemplo: "Tengo $700 y 5 días, quiero playa en México"</p>
+                    </div>
+                </div>
+
+                <!-- Entrada de mensaje -->
+                <div class="bg-white border-t p-4 sticky bottom-0 z-10">
+                    <div class="flex mb-2">
+                        <input id="userMessage" type="text" placeholder="Escribe tu mensaje..." class="flex-grow border border-gray-300 rounded-l-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <button id="sendMessageBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-r-lg transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <!-- Respuestas rápidas -->
+                    <div class="flex overflow-x-auto space-x-2 mb-2">
+                        <button class="quick-resp-btn bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded-full text-sm whitespace-nowrap transition">Playa</button>
+                        <button class="quick-resp-btn bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded-full text-sm whitespace-nowrap transition">Aventura</button>
+                        <button class="quick-resp-btn bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded-full text-sm whitespace-nowrap transition">Cultural</button>
+                        <button class="quick-resp-btn bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded-full text-sm whitespace-nowrap transition">7 días</button>
+                        <button class="quick-resp-btn bg-gray-200 hover:bg-gray-300 text-gray-800 py-1 px-3 rounded-full text-sm whitespace-nowrap transition">$500-$1000</button>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Columna derecha (Ofertas especiales) -->
+            <aside class="hidden md:block w-1/4 bg-white border-l overflow-y-auto p-4 space-y-4">
+                <h4 class="text-lg font-bold text-gray-700 mb-2">🔥 Ofertas Especiales</h4>
+
+                <!-- Card 1 -->
+                <div class="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                    <img src="https://www.omintassistance.com.ar/blog/wp-content/uploads/2018/01/Grecia-940x510.jpg" alt="Grecia romántica" class="h-32 w-full object-cover">
+                    <div class="p-3">
+                        <h5 class="font-bold text-pink-700 mb-1">Grecia romántica</h5>
+                        <p class="text-sm text-gray-600 mb-2">Descubre las islas más hermosas en un viaje inolvidable.</p>
+                        <p class="font-semibold text-gray-800 mb-2">6 días desde $1100</p>
+                        <button class="bg-pink-600 text-white text-sm py-1 px-3 rounded hover:bg-pink-700">Ver más</button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                    <img src="https://www.kiwakatravel.com/wp-content/uploads/2023/03/wildebeests-g4636007e3_1280-1024x682.jpg" alt="Safari Kenia" class="h-32 w-full object-cover">
+                    <div class="p-3">
+                        <h5 class="font-bold text-purple-700 mb-1">Safari en Kenia</h5>
+                        <p class="text-sm text-gray-600 mb-2">Vive la aventura entre la fauna salvaje de África.</p>
+                        <p class="font-semibold text-gray-800 mb-2">8 días desde $2500</p>
+                        <button class="bg-purple-600 text-white text-sm py-1 px-3 rounded hover:bg-purple-700">Ver más</button>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=600&q=60" alt="NY Express" class="h-32 w-full object-cover">
+                    <div class="p-3">
+                        <h5 class="font-bold text-red-700 mb-1">Nueva York Express</h5>
+                        <p class="text-sm text-gray-600 mb-2">Explora la Gran Manzana en una escapada vibrante.</p>
+                        <p class="font-semibold text-gray-800 mb-2">3 días desde $799</p>
+                        <button class="bg-red-600 text-white text-sm py-1 px-3 rounded hover:bg-red-700">Ver más</button>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-gray-300 py-3 text-center text-sm">
+            <p>© 2025 TravelAI - Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <!-- JS -->
+    <script>
+        document.getElementById("closeChatBtn").addEventListener("click", function () {
+            document.getElementById("chatModal").classList.add("hidden");
+        });
+
+        document.getElementById("backBtn").addEventListener("click", function () {
+            history.back();
+        });
+
+        const sendMessageBtn = document.getElementById("sendMessageBtn");
+        const userMessage = document.getElementById("userMessage");
+        const chatMessages = document.getElementById("chatMessages");
+        const quickRespBtns = document.querySelectorAll(".quick-resp-btn");
+
+        function sendMessage() {
+            const message = userMessage.value.trim();
+            if (message !== "") {
+                const userMsgElement = document.createElement("div");
+                userMsgElement.className = "message-sent bg-blue-100 p-4 rounded-xl shadow max-w-lg ml-auto mb-4";
+                userMsgElement.innerHTML = `
+                    <p class="font-semibold text-blue-800">Tú:</p>
+                    <p>${message}</p>
+                `;
+                chatMessages.appendChild(userMsgElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                userMessage.value = "";
+
+                // Simular respuesta
+                setTimeout(() => {
+                    const botResponse = document.createElement("div");
+                    botResponse.className = "message-received bg-white p-4 rounded-xl shadow max-w-lg mb-4";
+                    botResponse.innerHTML = `
+                        <p class="font-semibold text-blue-600">TravelAI:</p>
+                        <p>Estoy procesando tu solicitud sobre: <strong>${message}</strong>. ¡Te enviaré recomendaciones personalizadas! ✈️</p>
+                    `;
+                    chatMessages.appendChild(botResponse);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+        }
+
+        sendMessageBtn.addEventListener("click", sendMessage);
+        userMessage.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        quickRespBtns.forEach(btn => {
+            btn.addEventListener("click", function () {
+                userMessage.value = this.textContent;
+                userMessage.focus();
+            });
+        });
+    </script>
+</body>
+</html>

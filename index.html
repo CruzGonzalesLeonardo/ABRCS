@@ -1,1 +1,568 @@
-a
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelAI - Planificador de Viajes Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS for animations and elements not covered by Tailwind */
+        .chat-container {
+            height: 70vh;
+            background-image: url('https://images.unsplash.com/photo-1506929562872-bb421503ef21?q=80&w=1368&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+        
+        .message-received {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .message-sent {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .floating-btn {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .itinerary-card {
+            transition: all 0.3s ease;
+        }
+        
+        .itinerary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-plane-departure text-2xl mr-3"></i>
+                    <span class="text-xl font-bold">Travel<span class="text-yellow-300">AI</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#" class="hover:text-yellow-200 transition">Inicio</a>
+                    <a href="#" class="hover:text-yellow-200 transition">Destinos</a>
+                    <a href="#" class="hover:text-yellow-200 transition">Nosotros</a>
+                    <a href="#" class="hover:text-yellow-200 transition">Contacto</a>
+                </div>
+                <button class="md:hidden text-2xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-blue-400 to-emerald-300 text-white py-16 px-4 text-center">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Planifica tu viaje perfecto con inteligencia artificial</h1>
+            <p class="text-xl mb-8">Dinos tus preferencias, presupuesto y tiempo disponible. ¡Nuestro asistente inteligente creará un itinerario personalizado para ti!</p>
+            <a href="chatbot.html" class="floating-btn bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-8 rounded-full transition-all shadow-lg inline-flex items-center">
+                <i class="fas fa-comment-dots mr-2"></i> Comienza a planear
+            </a>
+
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="py-16 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Cómo funciona TravelAI</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="bg-blue-100 w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-comment-alt text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">1. Cuéntanos tu viaje ideal</h3>
+                    <p class="text-gray-600">Comparte con nuestro chatbot tus preferencias, presupuesto y días disponibles.</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-emerald-100 w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-brain text-emerald-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">2. IA analiza las opciones</h3>
+                    <p class="text-gray-600">Nuestra inteligencia artificial selecciona los mejores destinos y actividades para ti.</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-yellow-100 w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-map-marked-alt text-yellow-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">3. Recibe tu itinerario</h3>
+                    <p class="text-gray-600">Obtén un plan detallado día por día con todo lo que necesitas para tu aventura.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <!-- Itinerary Results Section (Hidden by default) -->
+    <section id="itineraryResults" class="py-16 px-4 bg-gray-50 hidden">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Tu itinerario personalizado</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex flex-col md:flex-row justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-blue-600">Resumen del Viaje</h3>
+                        <div class="mt-2 space-y-1">
+                            <p><span class="font-semibold">Destino:</span> <span id="destiny-result">Lisboa, Portugal & Madrid, España</span></p>
+                            <p><span class="font-semibold">Duración:</span> <span id="duration-result">7 días</span></p>
+                            <p><span class="font-semibold">Presupuesto:</span> <span id="budget-result">$950</span></p>
+                            <p><span class="font-semibold">Tipo:</span> <span id="type-result">Cultural</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        <button id="downloadItineraryBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-6 rounded-lg flex items-center transition">
+                            <i class="fas fa-file-pdf mr-2"></i> Descargar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="itineraryDetails">
+                <!-- Sample itinerary - this would be dynamically generated -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Destination 1 -->
+                    <div class="itinerary-card bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="h-48 bg-gradient-to-r from-blue-400 to-cyan-300 flex items-center justify-center text-white text-2xl font-bold">
+                            Lisboa, Portugal
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-lg mb-3">Días 1-3</h4>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <span class="bg-blue-100 text-blue-800 p-1 rounded-full mr-3">
+                                        <i class="fas fa-sun text-xs"></i>
+                                    </span>
+                                    <span>Día 1: Llegada y recorrido por el barrio de Alfama</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-100 text-blue-800 p-1 rounded-full mr-3">
+                                        <i class="fas fa-umbrella-beach text-xs"></i>
+                                    </span>
+                                    <span>Día 2: Tour al Castillo de San Jorge y tranvía 28</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-100 text-blue-800 p-1 rounded-full mr-3">
+                                        <i class="fas fa-utensils text-xs"></i>
+                                    </span>
+                                    <span>Día 3: Excursión a Sintra y cena con fado en vivo</span>
+                                </li>
+                            </ul>
+                            <div class="mt-4 pt-4 border-t">
+                                <h5 class="font-semibold mb-2">Alojamiento recomendado</h5>
+                                <p class="text-sm">Hotel Chiado: $70/noche - Excelente ubicación en el centro</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Destination 2 -->
+                    <div class="itinerary-card bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="h-48 bg-gradient-to-r from-amber-400 to-orange-300 flex items-center justify-center text-white text-2xl font-bold">
+                            Madrid, España
+                        </div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-lg mb-3">Días 4-7</h4>
+                            <ul class="space-y-2">
+                                <li class="flex items-start">
+                                    <span class="bg-blue-100 text-blue-800 p-1 rounded-full mr-3">
+                                        <i class="fas fa-sun text-xs"></i>
+                                    </span>
+                                    <span>Día 4: Visita al Museo del Prado y Parque del Retiro</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-100 text-blue-800 p-1 rounded-full mr-3">
+                                        <i class="fas fa-umbrella-beach text-xs"></i>
+                                    </span>
+                                    <span>Día 5: Excursión de día completo a Toledo</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-100 text-blue-800 p-1 rounded-full mr-3">
+                                        <i class="fas fa-utensils text-xs"></i>
+                                    </span>
+                                    <span>Día 6: Tour gastronómico por Mercado de San Miguel</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-100 text-blue-800 p-1 rounded-full mr-3">
+                                        <i class="fas fa-plane text-xs"></i>
+                                    </span>
+                                    <span>Día 7: Tiempo libre y vuelo de regreso</span>
+                                </li>
+                            </ul>
+                            <div class="mt-4 pt-4 border-t">
+                                <h5 class="font-semibold mb-2">Alojamiento recomendado</h5>
+                                <p class="text-sm">Hostal Gala: $55/noche - Céntrico y con buena relación calidad-precio</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Budget Breakdown -->
+                <div class="mt-8 bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-bold text-blue-600 mb-4">Desglose de presupuesto</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold mb-2">Costos principales</h4>
+                            <ul class="space-y-2">
+                                <li class="flex justify-between border-b pb-1">
+                                    <span>Vuelos:</span>
+                                    <span class="font-semibold">$400</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-1">
+                                    <span>Alojamiento:</span>
+                                    <span class="font-semibold">$350</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-1">
+                                    <span>Actividades/tours:</span>
+                                    <span class="font-semibold">$120</span>
+                                </li>
+                                <li class="flex justify-between border-b pb-1">
+                                    <span>Comida:</span>
+                                    <span class="font-semibold">$80</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">Total estimado</h4>
+                            <p class="text-3xl font-bold text-blue-600">$950</p>
+                            <p class="text-sm text-gray-600 mt-1">* Dentro de tu presupuesto de $1,000</p>
+                            
+                            <h4 class="font-semibold mt-4 mb-2">Tips viajeros</h4>
+                            <ul class="list-disc pl-5 text-sm space-y-1">
+                                <li>Pasaporte vigente requerido</li>
+                                <li>Mejor época: Mayo-Junio o Septiembre-Octubre</li>
+                                <li>Tarjeta de transporte recomendada para ambas ciudades</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <button id="newItineraryBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-8 rounded-lg font-semibold transition inline-flex items-center">
+                    <i class="fas fa-robot mr-2"></i> Generar nuevo itinerario
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-16 px-4 bg-gradient-to-br from-blue-50 to-emerald-50">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Lo que dicen nuestros viajeros</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 mr-4">
+                            <i class="fas fa-user text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Carolina M.</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"Gracias a TravelAI descubrí lugares en Tailandia que ni sabía que existían. El itinerario fue perfecto para mi presupuesto y me ahorró horas de investigación."</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+                            <i class="fas fa-user text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Javier R.</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"Por primera vez viajé con un plan completo. La recomendación de actividades en Italia fue increíble, justo lo que buscaba sin tener que pensar."</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mr-4">
+                            <i class="fas fa-user text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Ana y Luis</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"Nuestra luna de miel en Grecia fue mágica! El itinerario incluyó todo lo romántico que queríamos y algunos sitios secretos que no aparecen en las guías."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 px-4 bg-gradient-to-r from-blue-600 to-emerald-600 text-white">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-6">¿Listo para tu próxima aventura?</h2>
+            <p class="text-xl mb-8">Deja que nuestra inteligencia artificial diseñe el viaje perfecto para ti. ¡Solo dinos lo que buscas!</p>
+            <button id="ctaOpenChatBtn" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-8 rounded-full transition-all shadow-lg inline-flex items-center">
+                <i class="fas fa-comment-dots mr-2"></i> Hablar con TravelAI
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-12 px-4">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-white text-xl font-bold mb-4">TravelAI</h3>
+                <p>La forma más inteligente de planificar tus viajes. Tecnología y pasión por descubrir el mundo.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4">Enlaces</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-white transition">Inicio</a></li>
+                    <li><a href="#" class="hover:text-white transition">Destinos populares</a></li>
+                    <li><a href="#" class="hover:text-white transition">Cómo funciona</a></li>
+                    <li><a href="#" class="hover:text-white transition">Testimonios</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4">Contacto</h4>
+                <ul class="space-y-2">
+                    <li class="flex items-center"><i class="fas fa-envelope mr-2"></i> hola@travelai.com</li>
+                    <li class="flex items-center"><i class="fas fa-phone mr-2"></i> +1 234 567 890</li>
+                    <li class="flex items-center"><i class="fas fa-map-marker-alt mr-2"></i> Barcelona, España</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4">Síguenos</h4>
+                <div class="flex space-x-4">
+                    <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-pink-600 transition">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-400 transition">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+                <div class="mt-4">
+                    <p class="text-sm">Descarga nuestra app</p>
+                    <div class="flex space-x-2 mt-2">
+                        <a href="#" class="bg-black text-white py-1 px-3 rounded text-sm flex items-center">
+                            <i class="fab fa-apple mr-1"></i> App Store
+                        </a>
+                        <a href="#" class="bg-black text-white py-1 px-3 rounded text-sm flex items-center">
+                            <i class="fab fa-google-play mr-1"></i> Play Store
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm">
+            <p>© 2023 TravelAI. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Floating Chat Button -->
+    <button id="floatingChatBtn" class="fixed bottom-6 right-6 floating-btn w-16 h-16 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-blue-700 transition z-40">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <script>
+        /*
+        // Chat functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const chatModal = document.getElementById('chatModal');
+            const openChatBtn = document.getElementById('openChatBtn');
+            const ctaOpenChatBtn = document.getElementById('ctaOpenChatBtn');
+            const floatingChatBtn = document.getElementById('floatingChatBtn');
+            const closeChatBtn = document.getElementById('closeChatBtn');
+            const sendMessageBtn = document.getElementById('sendMessageBtn');
+            const userMessage = document.getElementById('userMessage');
+            const chatMessages = document.getElementById('chatMessages');
+            const itineraryResults = document.getElementById('itineraryResults');
+            const newItineraryBtn = document.getElementById('newItineraryBtn');
+            const downloadItineraryBtn = document.getElementById('downloadItineraryBtn');
+            const quickRespBtns = document.querySelectorAll('.quick-resp-btn');
+            
+            // Open chat modal
+            function openChat() {
+                chatModal.classList.remove('hidden');
+                userMessage.focus();
+            }
+            
+            // Close chat modal
+            function closeChat() {
+                chatModal.classList.add('hidden');
+            }
+            
+            // Event listeners
+            openChatBtn.addEventListener('click', openChat);
+            ctaOpenChatBtn.addEventListener('click', openChat);
+            floatingChatBtn.addEventListener('click', openChat);
+            closeChatBtn.addEventListener('click', closeChat);
+            
+            // Send message function
+            function sendMessage() {
+                const message = userMessage.value.trim();
+                if (message) {
+                    // Add user message to chat
+                    const userMsgElement = document.createElement('div');
+                    userMsgElement.className = 'message-sent bg-blue-100 p-4 rounded-lg shadow max-w-xs md:max-w-md ml-auto';
+                    userMsgElement.innerHTML = `
+                        <p class="font-semibold text-blue-800">Tú:</p>
+                        <p>${message}</p>
+                    `;
+                    chatMessages.appendChild(userMsgElement);
+                    userMessage.value = '';
+                    
+                    // Scroll to bottom
+                    chatMessages.parentElement.scrollTop = chatMessages.parentElement.scrollHeight;
+                    
+                    // Simulate bot response after delay
+                    setTimeout(() => {
+                        // Check if it's the first user message (initial parameters)
+                        const isFirstResponse = chatMessages.querySelectorAll('.message-sent').length === 1;
+                        
+                        if (isFirstResponse) {
+                            // First response (ask for more details or confirm)
+                            const botResponse = document.createElement('div');
+                            botResponse.className = 'message-received bg-white p-4 rounded-lg shadow max-w-xs md:max-w-md';
+                            botResponse.innerHTML = `
+                                <p class="font-semibold text-blue-600">TravelAI:</p>
+                                <p>¡Gracias por la información! Con esos datos puedo recomendarte:</p>
+                                <ul class="list-disc pl-5 mt-2 space-y-1">
+                                    <li>Una escapada romántica a Santorini, Grecia</li>
+                                    <li>Un tour cultural por Lisboa y Madrid</li>
+                                    <li>Una aventura en la selva de Costa Rica</li>
+                                </ul>
+                                <p class="mt-2">¿Te interesa alguna de estas opciones o prefieres algo diferente?</p>
+                            `;
+                            chatMessages.appendChild(botResponse);
+                        } else if (message.toLowerCase().includes('lisboa') || message.toLowerCase().includes('cultural') || 
+                                  message.toLowerCase().includes('madrid') || message.toLowerCase().includes('europa')) {
+                            // Specific response with itinerary
+                            const botResponse = document.createElement('div');
+                            botResponse.className = 'message-received bg-white p-4 rounded-lg shadow max-w-xs md:max-w-md';
+                            botResponse.innerHTML = `
+                                <p class="font-semibold text-blue-600">TravelAI:</p>
+                                <p class="mb-2">¡Excelente elección! He creado un itinerario cultural en Europa:</p>
+                                <p class="font-bold">Lisboa, Portugal (3 días):</p>
+                                <ul class="list-disc pl-5 text-sm space-y-1">
+                                    <li>Tour al Castillo de San Jorge</li>
+                                    <li>Recorrido por el barrio de Alfama</li>
+                                    <li>Tranvía 28 y excursión a Sintra</li>
+                                </ul>
+                                <p class="font-bold mt-2">Madrid, España (4 días):</p>
+                                <ul class="list-disc pl-5 text-sm space-y-1">
+                                    <li>Museo del Prado y Reina Sofía</li>
+                                    <li>Excursión a Toledo</li>
+                                    <li>Tour gastronómico por Mercado de San Miguel</li>
+                                </ul>
+                                <p class="mt-2">Costo estimado: $950 (incluye vuelos y alojamiento).</p>
+                                <button id="showItineraryBtn" class="mt-2 bg-emerald-600 hover:bg-emerald-700 text-white py-1 px-3 rounded text-sm transition">
+                                    Ver itinerario completo
+                                </button>
+                            `;
+                            chatMessages.appendChild(botResponse);
+                            
+                            // Add event listener to the show itinerary button
+                            setTimeout(() => {
+                                document.getElementById('showItineraryBtn').addEventListener('click', function() {
+                                    closeChat();
+                                    itineraryResults.classList.remove('hidden');
+                                    window.scrollTo({
+                                        top: itineraryResults.offsetTop,
+                                        behavior: 'smooth'
+                                    });
+                                });
+                            }, 100);
+                        } else {
+                            // Generic response
+                            const botResponse = document.createElement('div');
+                            botResponse.className = 'message-received bg-white p-4 rounded-lg shadow max-w-xs md:max-w-md';
+                            botResponse.innerHTML = `
+                                <p class="font-semibold text-blue-600">TravelAI:</p>
+                                <p>¡Entendido! Estoy trabajando en varias opciones para ti. ¿Te gustaría algo más relajado o activo?</p>
+                            `;
+                            chatMessages.appendChild(botResponse);
+                        }
+                        
+                        // Scroll to bottom after bot response
+                        chatMessages.parentElement.scrollTop = chatMessages.parentElement.scrollHeight;
+                    }, 1000);
+                }
+            }
+            
+            // Send message on button click or Enter key
+            sendMessageBtn.addEventListener('click', sendMessage);
+            userMessage.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Quick response buttons
+            quickRespBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    userMessage.value = this.textContent;
+                    userMessage.focus();
+                });
+            });
+            
+            // New itinerary button
+            newItineraryBtn.addEventListener('click', function() {
+                itineraryResults.classList.add('hidden');
+                openChat();
+            });
+            
+            // Download itinerary (simulated)
+            downloadItineraryBtn.addEventListener('click', function() {
+                alert('Itinerario descargado como PDF (simulación)');
+            });
+        });*/
+    </script>
+
+</body>
+</html>
